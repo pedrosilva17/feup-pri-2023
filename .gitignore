@@ -1,3 +1,6 @@
 datasets/cause_description.csv
 datasets/countries.csv
+datasets/global_word_frequency.csv
 datasets/global.csv
+wordclouds/*.png
+gjsons/*.geojson
