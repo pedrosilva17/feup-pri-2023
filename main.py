@@ -16,6 +16,7 @@ def main():
     
     # list all csv files only
     all_files = glob.glob('datasets/*.{}'.format('csv'))
+    info_files = glob.glob('info/*.{}'.format('csv'))
     ihme_files = glob.glob('datasets/IHME-*.{}'.format('csv'))
 
     # if global.csv does not exist, generate it
@@ -24,6 +25,10 @@ def main():
     else:
         print('global.csv already exists\nReading global.csv')
         globaldf = pd.read_csv('datasets/global.csv')
+        if not ('info/cause_maxvals.csv' in info_files) and not ('info/country_maxvals.csv' in all_files):
+            dataset_description(globaldf)
+        else:
+            print('cause_maxvals.csv and country_maxvals.csv already exist')
 
     # if cause_description.csv does not exist, generate it
     if not ('datasets/cause_description.csv' in all_files):
@@ -47,6 +52,8 @@ def generate_global_csv(csv_files):
     # TODO: collapse rows and remove useless columns
 
     numberdf.to_csv('datasets/global.csv', index=False)
+
+    dataset_description(numberdf)
 
     print('global.csv generated')
     return numberdf
@@ -135,6 +142,18 @@ def generate_wordcloud(description, cause):
     plt.savefig(f"wordclouds/{cause.replace('/', '_')}.png", bbox_inches='tight', pad_inches=0)
     plt.close()
 
+def dataset_description(df):
+    print(f"Dataset description:\n{df.describe()}")
+
+    print("Generating csv for max values for each cause")
+    idx = df.groupby('cause_name')['val'].idxmax()
+    cause_maxvals = df.loc[idx]
+    cause_maxvals.to_csv('info/cause_maxvals.csv', index=False)
+
+    print("Generating csv for max values for each country")
+    idx = df.groupby('location_name')['val'].idxmax()
+    country_maxvals = df.loc[idx]
+    country_maxvals.to_csv('info/country_maxvals.csv', index=False)
 
 if __name__ == '__main__':
     nltk.download("stopwords")
