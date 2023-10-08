@@ -1,46 +1,41 @@
-import wikipediaapi
-import requests
-import json
-import glob
+import wikipediaapi, requests, json, glob, string, nltk, contractions, re, os
+import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
-import string
-import nltk
-import contractions
-import re
 from sklearn.feature_extraction.text import CountVectorizer
 from wordcloud import WordCloud
 from textwrap import wrap
-import matplotlib.pyplot as plt
 
 def main():
     
     # list all csv files only
-    all_files = glob.glob('datasets/*.{}'.format('csv'))
-    info_files = glob.glob('info/*.{}'.format('csv'))
+    generated_files = glob.glob('datasets/generated/*.{}'.format('csv'))
     ihme_files = glob.glob('datasets/IHME-*.{}'.format('csv'))
 
     # if global.csv does not exist, generate it
-    if not ('datasets/global.csv' in all_files):
+    if not ('datasets/generated/global.csv' in generated_files):
         globaldf = generate_global_csv(ihme_files)
     else:
         print('global.csv already exists\nReading global.csv')
-        globaldf = pd.read_csv('datasets/global.csv')
-        if not ('info/cause_maxvals.csv' in info_files) and not ('info/country_maxvals.csv' in all_files):
-            dataset_description(globaldf)
-        else:
-            print('cause_maxvals.csv and country_maxvals.csv already exist')
+        globaldf = pd.read_csv('datasets/generated/global.csv')
+        dataset_description(globaldf)
 
     # if cause_description.csv does not exist, generate it
-    if not ('datasets/cause_description.csv' in all_files):
-        generate_causes_csv(globaldf)
+    if not ('datasets/generated/cause_description.csv' in generated_files):
+        causes = generate_causes_csv(globaldf)
     else:
         print('cause_description.csv already exists')
 
     # if countries.csv does not exist, generate it
-    if not ('datasets/countries.csv' in all_files):
-        generate_countries_csv(globaldf)
+    if not ('datasets/generated/countries.csv' in generated_files):
+        countries = generate_countries_csv(globaldf)
     else:
         print('countries.csv already exists')
+
+    if (countries is not None) and (causes is not None):
+        generate_individual_csvs(globaldf, causes, countries)
+    else:
+        print('Couldn\'t generate individual csvs')
 
 def generate_global_csv(csv_files):
     print('Generating global.csv')
@@ -49,9 +44,7 @@ def generate_global_csv(csv_files):
 
     numberdf = globaldf.loc[globaldf['metric_id'] == 1]
 
-    # TODO: collapse rows and remove useless columns
-
-    numberdf.to_csv('datasets/global.csv', index=False)
+    numberdf.to_csv('datasets/generated/global.csv', index=False)
 
     dataset_description(numberdf)
 
@@ -63,28 +56,34 @@ def generate_causes_csv(globaldf):
     causes = globaldf["cause_name"].unique()
     
     descriptions = []
+    info_causes = []
     wiki = wikipediaapi.Wikipedia('Mozilla/5.0', 'en')
     cause_description = pd.DataFrame(columns=['cause_name', 'description']);
     for cause in causes:
         page = wiki.page(cause)
+
         if page.exists():
             description = page.summary
             cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
+            info_causes.append(cause)
             description = fix_description(description)
-            generate_wordcloud(description, cause)
+            generate_graphs(description, cause)
             descriptions += description
     
-    generate_wordcloud(descriptions, "global")
+    generate_graphs(descriptions, "global")
 
-    cause_description.to_csv('datasets/cause_description.csv', index=False)
+    cause_description.to_csv('datasets/generated/cause_description.csv', index=False)
 
     print("cause_description.csv generated")
+
+    return info_causes
 
 def generate_countries_csv(globaldf):
     print("Generating countries.csv")
     countries = globaldf["location_name"].unique()
+    info_countries = []
 
-    countrydf = pd.DataFrame(columns=['country', 'code'])
+    all_countrydf = pd.DataFrame(columns=['country', 'code'])
 
     for country in countries:
         cca3_r = requests.get(url = f'https://restcountries.com/v3.1/name/{country}')
@@ -108,10 +107,30 @@ def generate_countries_csv(globaldf):
         except FileExistsError:
             print("GEOJSON already exists")
 
-        countrydf = countrydf._append({'country': country, 'code': cca3}, ignore_index=True)
-    
-    countrydf.to_csv('datasets/countries.csv', index=False)
+        all_countrydf = all_countrydf._append({'country': country, 'code': cca3}, ignore_index=True)
+
+        info_countries.append((country, cca3))
+
+    all_countrydf.to_csv('datasets/generated/countries.csv', index=False)
     print("countries.csv generated")
+
+    return info_countries
+
+def generate_individual_csvs(globaldf, causes, countries):
+    for (country, cca3) in countries:
+        countrydf = globaldf.loc[globaldf['location_name'] == country]
+        
+        countrydf.to_csv(f"datasets/generated/countries/{cca3}.csv", index=False)
+    
+    for year in globaldf['year'].unique():
+        yeardf = globaldf.loc[globaldf['year'] == year]
+        
+        yeardf.to_csv(f"datasets/generated/year/{year}.csv", index=False)
+
+    for cause in causes:
+        causedf = globaldf.loc[globaldf['cause_name'] == cause]
+        
+        causedf.to_csv(f"datasets/generated/causes/{cause}.csv", index=False)
 
 def fix_description(description):
     cleaned_string = contractions.fix(description).lower().translate(str.maketrans('', '', string.punctuation)).replace('\n', '')
@@ -126,15 +145,19 @@ def fix_description(description):
 
     return words
 
-def generate_wordcloud(description, cause):
+def generate_graphs(description, cause):
     fdist = nltk.FreqDist(word for word in description)
     
     if cause == "global":
         df_fdist = pd.DataFrame.from_dict(fdist, orient='index')
-        df_fdist.columns = ['Term', 'Frequency']
-        df_fdist = df_fdist.sort_values(by=['frequency'], ascending=False)
-        df_fdist.to_csv('datasets/global_word_frequency.csv', index=True)
+        df_fdist.columns = ['Frequency']
+        df_fdist = df_fdist.sort_values(by=['Frequency'], ascending=False)
+        df_fdist.to_csv('datasets/generated/global_word_frequency.csv', index=True)
 
+    generate_bars(fdist, cause)
+    generate_wordcloud(fdist, cause)
+
+def generate_wordcloud(fdist, cause):
     wc = WordCloud(width=800, height=400, max_words=200).generate_from_frequencies(fdist)
     plt.figure(figsize=(10, 10))
     plt.imshow(wc, interpolation='bilinear')
@@ -142,18 +165,41 @@ def generate_wordcloud(description, cause):
     plt.savefig(f"wordclouds/{cause.replace('/', '_')}.png", bbox_inches='tight', pad_inches=0)
     plt.close()
 
-def dataset_description(df):
-    print(f"Dataset description:\n{df.describe()}")
+def generate_bars(fdist, cause):
+    series = pd.Series(dict(fdist.most_common(20)))
 
-    print("Generating csv for max values for each cause")
+    fig, ax = plt.subplots(figsize=(10,10))
+    plot = sns.barplot(x=series.index, y=series.values, ax=ax)
+    plt.xticks(rotation=30);
+
+    plot.set(xlabel = "Term", ylabel = "Frequency", title = f"Most common terms for {cause.lower()}")
+    plot.figure.savefig(f"graphs/{cause.replace('/', '_')}.png", bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+def dataset_description(df):
+    f = open("datasets/generated/dataset_description.txt", "w")
+    f.write(str(df.describe()))
+    f.close()
+
     idx = df.groupby('cause_name')['val'].idxmax()
     cause_maxvals = df.loc[idx]
-    cause_maxvals.to_csv('info/cause_maxvals.csv', index=False)
+    cause_maxvals.to_csv('datasets/generated/cause_maxvals.csv', index=False)
 
-    print("Generating csv for max values for each country")
     idx = df.groupby('location_name')['val'].idxmax()
     country_maxvals = df.loc[idx]
-    country_maxvals.to_csv('info/country_maxvals.csv', index=False)
+    country_maxvals.to_csv('datasets/generated/country_maxvals.csv', index=False)
+
+    idx = df.groupby('year')['val'].idxmax()
+    year_maxvals = df.loc[idx]
+    year_maxvals.to_csv('datasets/generated/year_maxvals.csv', index=False)
+
+    year_maxvals['val'] = year_maxvals['val'].astype(int)
+    plot = sns.barplot(x='year', y='val', data=year_maxvals)
+    plt.xticks(rotation=30);
+
+    plot.set(xlabel = "Year", ylabel = "Deaths", title = f"Number of deaths by year")
+    plot.figure.savefig(f"datasets/generated/deaths_year.png", bbox_inches='tight', pad_inches=0)
+    plt.close()
 
 if __name__ == '__main__':
     nltk.download("stopwords")
