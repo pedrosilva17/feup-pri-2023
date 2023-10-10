@@ -21,6 +21,7 @@ def main():
         print('global.csv already exists\nReading global.csv')
         globaldf = pd.read_csv('datasets/generated/global.csv')
         dataset_description(globaldf)
+    characterize_dataset(globaldf)
 
     # if cause_description.csv does not exist, generate it
     if not ('datasets/generated/cause_description.csv' in generated_files):
@@ -59,7 +60,7 @@ def generate_causes_csv(globaldf):
     
     descriptions = []
     info_causes = []
-    wiki = wikipediaapi.Wikipedia('Mozilla/5.0', 'en')
+    wiki = wikipediaapi.Wikipedia('en')
     cause_description = pd.DataFrame(columns=['cause_name', 'description']);
     for cause in causes:
         page = wiki.page(cause)
@@ -216,6 +217,18 @@ def dataset_description(df):
     plot.set(xlabel = "Year", ylabel = "Deaths", title = f"Number of deaths by year")
     plot.figure.savefig(f"datasets/generated/deaths_year.png", bbox_inches='tight', pad_inches=0)
     plt.close()
+    
+def characterize_dataset(df):
+    top_mortality_ranking(df)
+    return
+
+def top_mortality_ranking(df):
+    pd.options.display.float_format = '{:.2f}'.format
+    df = df[['cause_name', 'val', 'upper', 'lower']].groupby(['cause_name']).sum()
+    ranking = df.nlargest(10, 'val')
+    ranking.to_csv(f'datasets/generated/top_10_deadliest_diseases.csv')
+    
+    
 
 if __name__ == '__main__':
     nltk.download("stopwords")
