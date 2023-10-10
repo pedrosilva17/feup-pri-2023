@@ -1,4 +1,4 @@
-import wikipediaapi, requests, json, glob, string, nltk, contractions, re, os
+import wikipediaapi, requests, json, glob, string, nltk, contractions, re, os, random
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -11,6 +11,8 @@ def main():
     # list all csv files only
     generated_files = glob.glob('datasets/generated/*.{}'.format('csv'))
     ihme_files = glob.glob('datasets/IHME-*.{}'.format('csv'))
+    countries = []
+    causes = []
 
     # if global.csv does not exist, generate it
     if not ('datasets/generated/global.csv' in generated_files):
@@ -32,7 +34,7 @@ def main():
     else:
         print('countries.csv already exists')
 
-    if (countries is not None) and (causes is not None):
+    if (len(countries) != 0) or (len(causes) != 0):
         generate_individual_csvs(globaldf, causes, countries)
     else:
         print('Couldn\'t generate individual csvs')
@@ -119,7 +121,7 @@ def generate_countries_csv(globaldf):
 def generate_individual_csvs(globaldf, causes, countries):
     for (country, cca3) in countries:
         countrydf = globaldf.loc[globaldf['location_name'] == country]
-        
+    
         countrydf.to_csv(f"datasets/generated/countries/{cca3}.csv", index=False)
     
     for year in globaldf['year'].unique():
@@ -129,8 +131,8 @@ def generate_individual_csvs(globaldf, causes, countries):
 
     for cause in causes:
         causedf = globaldf.loc[globaldf['cause_name'] == cause]
-        
-        causedf.to_csv(f"datasets/generated/causes/{cause}.csv", index=False)
+
+        causedf.to_csv(f"datasets/generated/causes/{cause.replace('/', '_')}.csv", index=False)
 
 def fix_description(description):
     cleaned_string = contractions.fix(description).lower().translate(str.maketrans('', '', string.punctuation)).replace('\n', '')
@@ -157,8 +159,12 @@ def generate_graphs(description, cause):
     generate_bars(fdist, cause)
     generate_wordcloud(fdist, cause)
 
+def color_func(word, font_size, position, orientation, random_state=None,
+                **kwargs):
+    return f"hsl({random.randint(0, 20)}, 100%, {random.randint(60, 100)}%)"
+
 def generate_wordcloud(fdist, cause):
-    wc = WordCloud(width=800, height=400, max_words=200).generate_from_frequencies(fdist)
+    wc = WordCloud(width=800, height=400, max_words=20, stopwords=nltk.corpus.stopwords.words('english'), color_func=color_func).generate_from_frequencies(fdist)
     plt.figure(figsize=(10, 10))
     plt.imshow(wc, interpolation='bilinear')
     plt.axis('off')
@@ -169,7 +175,7 @@ def generate_bars(fdist, cause):
     series = pd.Series(dict(fdist.most_common(20)))
 
     fig, ax = plt.subplots(figsize=(10,10))
-    plot = sns.barplot(x=series.index, y=series.values, ax=ax)
+    plot = sns.barplot(x=series.index, y=series.values, ax=ax, palette="flare", hue=series.index, legend=False)
     plt.xticks(rotation=30);
 
     plot.set(xlabel = "Term", ylabel = "Frequency", title = f"Most common terms for {cause.lower()}")
@@ -179,6 +185,16 @@ def generate_bars(fdist, cause):
 def dataset_description(df):
     f = open("datasets/generated/dataset_description.txt", "w")
     f.write(str(df.describe()))
+    f.write("\n\n")
+    for column in df.columns:
+        f.write(f"{column}:\n")
+        f.write(str(df[column].describe()))
+        f.write("\n")
+        f.write(f"# unique entries {column}: {str(len(df[column].unique()))}")
+        f.write("\n\n")
+    f.write("\n\n")
+    f.write(f"{df['cause_name'].unique()}")
+
     f.close()
 
     idx = df.groupby('cause_name')['val'].idxmax()
