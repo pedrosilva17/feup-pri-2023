@@ -47,6 +47,17 @@ def generate_global_csv(csv_files):
 
     numberdf = globaldf.loc[globaldf['metric_id'] == 1]
 
+    # for country in numberdf['location_name'].unique():
+    #     countrydf = numberdf.loc[numberdf['location_name'] == country]
+    #     causedf = countrydf.loc[countrydf['cause_name'] == "Ischemic heart disease"]
+    #     for age in causedf['age_name'].unique():
+    #         agedf = causedf.loc[causedf['age_name'] == age]
+    #         agedf = agedf.sort_values(by=['year'], ascending=False)
+    #         [print("year: ", agedf['year'][i] ,"\nyears:", (agedf['year'][0:i])) for i,x in enumerate(agedf['val'])]
+
+    #         print(agedf)
+            
+
     numberdf.to_csv('datasets/generated/global.csv', index=False)
 
     dataset_description(numberdf)
@@ -223,6 +234,7 @@ def characterize_dataset(df):
     return
 
 def top_mortality_ranking(df):
+    df = df.loc[df['year'] == 2019]
     pd.options.display.float_format = '{:.2f}'.format
     df = df[['cause_name', 'val', 'upper', 'lower']].groupby(['cause_name']).sum()
     ranking = df.nlargest(10, 'val')
