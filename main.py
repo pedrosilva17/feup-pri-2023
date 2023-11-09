@@ -47,6 +47,18 @@ def generate_global_csv(csv_files):
 
     numberdf = globaldf.loc[globaldf['metric_id'] == 1]
 
+    causes = numberdf["cause_name"].unique()
+    wiki = wikipediaapi.Wikipedia('Mozilla/5.0')
+    cause_description = pd.DataFrame(columns=['cause_name', 'description']);
+    for cause in causes:
+        page = wiki.page(cause)
+
+        if page.exists():
+            description = page.summary
+            cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
+
+    numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
+    
     # for country in numberdf['location_name'].unique():
     #     countrydf = numberdf.loc[numberdf['location_name'] == country]
     #     causedf = countrydf.loc[countrydf['cause_name'] == "Ischemic heart disease"]
@@ -57,8 +69,12 @@ def generate_global_csv(csv_files):
 
     #         print(agedf)
             
+    sampledf = numberdf.sample(n=100)
+
+    sampledf.dropna(subset=['description'], inplace=True)
 
     numberdf.to_csv('datasets/generated/global.csv', index=False)
+    sampledf.to_csv('datasets/generated/sample.csv', index=False)
 
     dataset_description(numberdf)
 
@@ -71,7 +87,7 @@ def generate_causes_csv(globaldf):
     
     descriptions = []
     info_causes = []
-    wiki = wikipediaapi.Wikipedia('en')
+    wiki = wikipediaapi.Wikipedia('Mozilla/5.0')
     cause_description = pd.DataFrame(columns=['cause_name', 'description']);
     for cause in causes:
         page = wiki.page(cause)
