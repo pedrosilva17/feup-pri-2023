@@ -58,7 +58,7 @@ df = pd.DataFrame([['Metric','Value']] +
     ]
 )
 
-with open('results.tex','w') as tf:
+with open('evaluation/results.tex','w') as tf:
     tf.write(df.to_latex())
 
 # PRECISION-RECALL CURVE
@@ -96,4 +96,4 @@ for idx, step in enumerate(recall_values):
 
 disp = PrecisionRecallDisplay([precision_recall_match.get(r) for r in recall_values], recall_values)
 disp.plot()
-plt.savefig('precision_recall.pdf')
+plt.savefig('evaluation/precision_recall.png', format="png")
