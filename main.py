@@ -2,6 +2,7 @@ import wikipediaapi, requests, json, glob, string, nltk, contractions, re, os, r
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from warnings import simplefilter
 from sklearn.feature_extraction.text import CountVectorizer
 from wordcloud import WordCloud
 from textwrap import wrap
@@ -20,6 +21,12 @@ def main():
     else:
         print('global.csv already exists\nReading global.csv')
         globaldf = pd.read_csv('datasets/generated/global.csv')
+        if not ('datasets/generated/sample.csv' in generated_files):
+                sampledf = globaldf.sample(n=100)
+                sampledf.dropna(subset=['description'], inplace=True)
+                sampledf.to_csv('datasets/generated/sample.csv', index = False)
+        else:
+            print('sample.csv already exists')
         dataset_description(globaldf)
     characterize_dataset(globaldf)
 
@@ -70,7 +77,6 @@ def generate_global_csv(csv_files):
     #         print(agedf)
             
     sampledf = numberdf.sample(n=100)
-
     sampledf.dropna(subset=['description'], inplace=True)
 
     numberdf.to_csv('datasets/generated/global.csv', index=False)
@@ -203,7 +209,7 @@ def generate_bars(fdist, cause):
     series = pd.Series(dict(fdist.most_common(20)))
 
     fig, ax = plt.subplots(figsize=(10,10))
-    plot = sns.barplot(x=series.index, y=series.values, ax=ax, palette="flare", hue=series.index, legend=False)
+    plot = sns.barplot(x=series.index, y=series.values, ax=ax, palette="flare", hue=series.index)
     plt.xticks(rotation=30);
 
     plot.set(xlabel = "Term", ylabel = "Frequency", title = f"Most common terms for {cause.lower()}")
@@ -257,8 +263,8 @@ def top_mortality_ranking(df):
     ranking.to_csv(f'datasets/generated/top_10_deadliest_diseases.csv')
     
     
-
 if __name__ == '__main__':
     nltk.download("stopwords")
     nltk.download("punkt")
+    simplefilter(action = 'ignore', category = FutureWarning)
     main()
