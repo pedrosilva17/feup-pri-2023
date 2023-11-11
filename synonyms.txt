@@ -1,0 +1,9 @@
+heart attack,myocardial infarction,coronary thrombosis
+cancer,malignancy,neoplasm
+stroke,cerebrovascular accident,brain attack
+pneumonia,lung infection
+diabetes,hyperglycemia
+dementia,Alzheimer's disease
+flu,influenza
+kidney failure,renal failure
+cirrhosis,liver disease

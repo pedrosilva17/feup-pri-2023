@@ -12,3 +12,8 @@ curl -X POST -H 'Content-type:application/json' \
 # Populate collection using mapped path inside container.
 docker exec -it meic_solr bin/post -c causes /data/sample.csv
 
+docker cp synonyms.txt meic_solr:/var/solr/data/causes/conf/synonyms.txt
+
+docker restart meic_solr
+
+
