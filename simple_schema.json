@@ -21,22 +21,6 @@
                     {"class":"solr.LowerCaseFilterFactory"}
                 ]
             }
-        },
-        {
-            "name":"longTextField",
-            "class":"solr.TextField",
-            "indexAnalyzer":{
-                "tokenizer":{
-                    "class":"solr.StandardTokenizerFactory"
-                },
-                "filters":[
-                    {"class":"solr.EnglishPossessiveFilterFactory"}
-                ]
-            }
-        },
-        {
-            "name":"floatValue",
-            "class":"solr.FloatPointField"
         }
     ],
     "add-field": [
@@ -44,34 +28,6 @@
             "name": "cause_name",
             "type": "basicTextField",
             "indexed": true
-        },
-        {
-            "name": "location_name",
-            "type": "basicTextField",
-            "indexed": true
-        },
-        {
-            "name": "description",
-            "type": "longTextField",
-            "indexed": true
-        },
-        {
-            "name": "val",
-            "type": "floatValue",
-            "indexed": true,
-            "docValues": true
-        },
-        {
-            "name": "lower",
-            "type": "floatValue",
-            "indexed": true,
-            "docValues": true
-        },
-        {
-            "name": "upper",
-            "type": "floatValue",
-            "indexed": true,
-            "docValues": true
         }
     ]
 }

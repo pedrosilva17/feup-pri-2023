@@ -6,7 +6,7 @@ sleep 15
 
 # Schema definition via API
 curl -X POST -H 'Content-type:application/json' \
-    --data-binary "@./simple_schema.json" \
+    --data-binary "@./schema.json" \
     http://localhost:8983/solr/causes/schema
 
 # Populate collection using mapped path inside container.
