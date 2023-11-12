@@ -1,4 +1,5 @@
 import wikipediaapi, requests, json, glob, string, nltk, contractions, re, os, random
+from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -56,28 +57,47 @@ def generate_global_csv(csv_files):
 
     causes = numberdf["cause_name"].unique()
     wiki = wikipediaapi.Wikipedia('Mozilla/5.0')
-    cause_description = pd.DataFrame(columns=['cause_name', 'description']);
+    cause_description = pd.DataFrame(columns=['cause_name', 'description'])
+
     for cause in causes:
         page = wiki.page(cause)
-
+        # we have a "direct hit" for this cause
         if page.exists():
             description = page.summary
             cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
+        else:
+            # directly search wikipedia
+            url = 'https://en.wikipedia.org/w/index.php'
+            headers = {
+                'Accept' : '*/*',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'User-Agent': 'Mozilla/5.0',
+            }
+            strip_cause = cause.lower().replace('other ', '')
+            parameters = {'search': strip_cause }
+            resp = requests.get(url, headers = headers, params = parameters)
 
-    numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
+            # we may have a "direct hit" from removing "other"
+            if re.search("^https://en.wikipedia.org/wiki/" , resp.url):
+                page = wiki.page(strip_cause)
+                if page.exists():
+                    description = page.summary
+                    cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
+            else:
+                # it wasn't a "direct hit", but we already have a valid search string on the first result
+                soup = BeautifulSoup(resp.text, 'html.parser')
+
+                search = soup.find_all('div', {"class":'mw-search-result-heading'})
+                search = re.sub(r'\([^)]*\)', '', search[0].text)
+
+                page = wiki.page(search)
+                if page.exists():
+                    description = page.summary
+                    cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
     
-    # for country in numberdf['location_name'].unique():
-    #     countrydf = numberdf.loc[numberdf['location_name'] == country]
-    #     causedf = countrydf.loc[countrydf['cause_name'] == "Ischemic heart disease"]
-    #     for age in causedf['age_name'].unique():
-    #         agedf = causedf.loc[causedf['age_name'] == age]
-    #         agedf = agedf.sort_values(by=['year'], ascending=False)
-    #         [print("year: ", agedf['year'][i] ,"\nyears:", (agedf['year'][0:i])) for i,x in enumerate(agedf['val'])]
-
-    #         print(agedf)
-            
+    numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
+    print(numberdf['description'].isnull().sum())
     sampledf = numberdf.sample(n=100)
-    sampledf.dropna(subset=['description'], inplace=True)
 
     numberdf.to_csv('datasets/generated/global.csv', index=False)
     sampledf.to_csv('datasets/generated/sample.csv', index=False)
@@ -97,7 +117,6 @@ def generate_causes_csv(globaldf):
     cause_description = pd.DataFrame(columns=['cause_name', 'description']);
     for cause in causes:
         page = wiki.page(cause)
-
         if page.exists():
             description = page.summary
             cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
@@ -105,6 +124,40 @@ def generate_causes_csv(globaldf):
             description = fix_description(description)
             generate_graphs(description, cause)
             descriptions += description
+        else:
+            url = 'https://en.wikipedia.org/w/index.php'
+            headers = {
+                'Accept' : '*/*',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'User-Agent': 'Mozilla/5.0',
+            }
+            strip_cause = cause.lower().replace('other ', '')
+            parameters = {'search': strip_cause }
+            resp = requests.get(url, headers = headers, params = parameters)
+
+            if re.search("^https://en.wikipedia.org/wiki/" , resp.url):
+                page = wiki.page(strip_cause)
+                if page.exists():
+                    description = page.summary
+                    cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
+                    info_causes.append(cause)
+                    description = fix_description(description)
+                    generate_graphs(description, cause)
+                    descriptions += description
+            else:
+                soup = BeautifulSoup(resp.text, 'html.parser')
+
+                search = soup.find_all('div', {"class":'mw-search-result-heading'})
+                search = re.sub(r'\([^)]*\)', '', search[0].text)
+
+                page = wiki.page(search)
+                if page.exists():
+                    description = page.summary
+                    cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
+                    info_causes.append(cause)
+                    description = fix_description(description)
+                    generate_graphs(description, cause)
+                    descriptions += description
     
     generate_graphs(descriptions, "global")
 
