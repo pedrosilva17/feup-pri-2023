@@ -23,8 +23,11 @@ def main():
         print('global.csv already exists\nReading global.csv')
         globaldf = pd.read_csv('datasets/generated/global.csv')
         if not ('datasets/generated/sample.csv' in generated_files):
+                print('Generating sample.csv')
                 sampledf = globaldf.sample(n=100)
                 sampledf.dropna(subset=['description'], inplace=True)
+                id_columns = [column for column in sampledf.columns if re.search("^[a-zA-Z]*_id$", column) is not None]
+                sampledf.drop(id_columns, axis = 'columns', inplace = True)
                 sampledf.to_csv('datasets/generated/sample.csv', index = False)
         else:
             print('sample.csv already exists')
@@ -96,8 +99,11 @@ def generate_global_csv(csv_files):
                     cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
     
     numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
-    print(numberdf['description'].isnull().sum())
+
     sampledf = numberdf.sample(n=1000)
+    id_columns = [column for column in numberdf.columns if re.search("^[a-zA-Z]*_id$", column) is not None]
+
+    sampledf.drop(id_columns, axis = 'columns', inplace = True)
 
     numberdf.to_csv('datasets/generated/global.csv', index=False)
     sampledf.to_csv('datasets/generated/sample.csv', index=False)
