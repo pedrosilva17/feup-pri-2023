@@ -40,23 +40,29 @@ def calculate_metric(key, results, relevant):
 
 if __name__ == '__main__':
     QUERIES_NAME = [
-        "cancer_lump",
-        "china_cancer"
+        "curable_cancer",
+        "curable_cancer_boost",
+        "2002_fever",
+        "2002_fever_boost",
     ]
 
     QUERIES = [
-        "http://localhost:8983/solr/causes/query?q=description:%22cancer%22%20description:%22lump%22&q.op=AND&indent=true&useParams=",
-        "http://localhost:8983/solr/causes/query?q=location_name:%22China%22%20description:%22cancer%22&q.op=AND&indent=true&sort=val%20desc&useParams=",
+        "http://localhost:8983/solr/causes/query?q=curable%20cancer%20ovary&q.op=OR&defType=edismax&indent=true&wt=json&qf=description%20cause_name&useParams=&wt=json",
+        "http://localhost:8983/solr/causes/query?q=curable%20cancer%20ovary&q.op=OR&defType=edismax&indent=true&qf=description%5E2.0%20cause_name&tie=0.1&qs=3&mm=75%25&useParams=&wt=json",
+        "http://localhost:8983/solr/causes/select?df=description&indent=true&q.op=AND&q=year%3A[2002 TO 2008]%20fever%20!cancer&useParams=",
+        "http://localhost:8983/solr/causes/select?defType=edismax&indent=true&mm=75%25&q.op=AND&q=year%3A[2002 TO 2008]%20fever%20!cancer&qf=cause_name%5E1.5%20description%5E1.25&tie=0.1&useParams="
     ]
 
     QRELS = [
         "qrels_cancer.txt",
-        "qrels_cancer.txt"
+        "qrels_cancer.txt",
+        "qrels_fever.txt",
+        "qrels_fever.txt",
     ]
 
-    for idx, query in enumerate(QUERIES):
-        QRELS_FILE = QRELS[idx]
-        QUERY_NAME = QUERIES_NAME[idx]
+    for i, query in enumerate(QUERIES):
+        QRELS_FILE = QRELS[i]
+        QUERY_NAME = QUERIES_NAME[i]
         QUERY_URL = query
 
         # Read qrels to extract relevant documents
