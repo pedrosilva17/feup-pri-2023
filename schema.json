@@ -77,7 +77,7 @@
         {
             "name": "sex_name",
             "type": "basicTextField",
-            "indexed": false
+            "indexed": true
         },
         {
             "name": "age_name",
@@ -97,7 +97,7 @@
         {
             "name": "description",
             "type": "longTextField",
-            "indexed": false
+            "indexed": true
         },
         {
             "name": "val",
