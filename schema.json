@@ -50,8 +50,12 @@
             }
         },
         {
-            "name":"floatValue",
-            "class":"solr.FloatPointField"
+            "name": "floatValue",
+            "class": "solr.FloatPointField"
+        },
+        {
+            "name": "intValue",
+            "class": "solr.IntPointField"
         }
     ],
     "add-field": [
@@ -66,9 +70,34 @@
             "indexed": true
         },
         {
+            "name": "measure_name",
+            "type": "basicTextField",
+            "indexed": false
+        },
+        {
+            "name": "sex_name",
+            "type": "basicTextField",
+            "indexed": false
+        },
+        {
+            "name": "age_name",
+            "type": "basicTextField",
+            "indexed": true
+        },
+        {
+            "name": "metric_name",
+            "type": "basicTextField",
+            "indexed": false
+        },
+        {
+            "name": "year",
+            "type": "intValue",
+            "indexed": true
+        },
+        {
             "name": "description",
             "type": "longTextField",
-            "indexed": true
+            "indexed": false
         },
         {
             "name": "val",
