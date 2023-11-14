@@ -97,7 +97,7 @@ def generate_global_csv(csv_files):
     
     numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
     print(numberdf['description'].isnull().sum())
-    sampledf = numberdf.sample(n=100)
+    sampledf = numberdf.sample(n=1000)
 
     numberdf.to_csv('datasets/generated/global.csv', index=False)
     sampledf.to_csv('datasets/generated/sample.csv', index=False)
