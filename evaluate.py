@@ -31,7 +31,7 @@ def ap(results, relevant):
     return sum(precision_values)/len(precision_values)
 
 @metric
-def p10(results, relevant, n=10):
+def p20(results, relevant, n=20):
     """Precision at N"""
     return len([doc for doc in results[:n] if doc['cause_name'] in relevant])/n
 
@@ -40,24 +40,24 @@ def calculate_metric(key, results, relevant):
 
 if __name__ == '__main__':
     QUERIES_NAME = [
-        "curable_cancer",
-        "curable_cancer_boost",
-        "2002_fever",
-        "2002_fever_boost",
+        "incurable_cancer_smp",
+        "incurable_cancer_boost_smp",
+        "complex_cond_smp",
+        "complex_cond_boost_smp",
     ]
 
     QUERIES = [
-        "http://localhost:8983/solr/causes/query?q=curable%20cancer%20ovary&q.op=OR&defType=edismax&indent=true&wt=json&qf=description%20cause_name&useParams=&wt=json",
-        "http://localhost:8983/solr/causes/query?q=curable%20cancer%20ovary&q.op=OR&defType=edismax&indent=true&qf=description%5E2.0%20cause_name&tie=0.1&qs=3&mm=75%25&useParams=&wt=json",
-        "http://localhost:8983/solr/causes/select?df=description&indent=true&q.op=AND&q=year%3A[2002 TO 2008]%20fever%20!cancer&useParams=",
-        "http://localhost:8983/solr/causes/select?defType=edismax&indent=true&mm=75%25&q.op=AND&q=year%3A[2002 TO 2008]%20fever%20!cancer&qf=cause_name%5E1.5%20description%5E1.25&tie=0.1&useParams="
+        "http://localhost:8983/solr/causes/select?defType=edismax&indent=true&q.op=OR&q=cancer%20!cure&qf=description%20cause_name&rows=20&useParams=",
+        "http://localhost:8983/solr/causes/select?bq=year%3A[2012%20TO%202019]&defType=edismax&indent=true&q.op=OR&q=cancer%20!cure&qf=description%20cause_name%5E20&rows=20&useParams=",
+        "http://localhost:8983/solr/causes/select?defType=edismax&df=description&indent=true&q.op=AND&q=val%3A%5B100%20TO%20*%5D%20(fever%20OR%20headache)%20!cancer&qf=description&useParams=&rows=20",
+        "http://localhost:8983/solr/causes/select?bq=year%3A%5B2012%20TO%202019%5D&defType=edismax&df=description&indent=true&q.op=AND&q=val%3A%5B100%20TO%20*%5D%20(fever%20OR%20headache)%20!cancer&qf=description&useParams=&rows=20"
     ]
 
     QRELS = [
         "qrels_cancer.txt",
         "qrels_cancer.txt",
-        "qrels_fever.txt",
-        "qrels_fever.txt",
+        "qrels_complex.txt",
+        "qrels_complex.txt",
     ]
 
     for i, query in enumerate(QUERIES):
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         # Define metrics to be calculated
         evaluation_metrics = {
             'ap': 'Average Precision',
-            'p10': 'Precision at 10 (P@10)'
+            'p20': 'Precision at 20 (P@20)'
         }
 
         # Calculate all metrics and export results as LaTeX table

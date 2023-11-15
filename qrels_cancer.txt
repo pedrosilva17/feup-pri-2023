@@ -1,5 +1,7 @@
-Ovarian cancer
-Testicular cancer
-Thyroid cancer
-Liver cancer
 Other neoplasms
+Other malignant neoplasms
+Liver cancer
+Kidney cancer
+Bladder cancer
+Thyroid cancer
+Meningitis

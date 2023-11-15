@@ -5,4 +5,3 @@ datasets/generated/*/*.csv
 wordclouds/*.png
 gjsons/*.geojson
 graphs/*.png
-evaluation/*
