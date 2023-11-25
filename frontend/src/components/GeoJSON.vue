@@ -1,48 +1,42 @@
 <script setup>
-import { defineProps, ref } from 'vue';
-import { LGeoJson, LPopup, LFeatureGroup } from "@vue-leaflet/vue-leaflet";
-
-const content = ref(null);
-const gjson = ref(null);
+import { defineProps } from "vue";
+import { LGeoJson } from "@vue-leaflet/vue-leaflet";
 
 const { ccode } = defineProps({
-    ccode: String
-})
+    ccode: String,
+});
 
-async function printJSON() {
+async function loadGeoJSON() {
     const response = await fetch(`src/assets/gjsons/${ccode}.json`);
-    return response.json();
+    return await response.json();
 }
-const geojson = await printJSON();
-const color = Math.floor(Math.random()*16777215).toString(16);
 
-const style = {
-    weight: 2,
-    color: color,
-    opacity: 1,
-    fillColor: color,
-    fillOpacity: 0.5
+const geojson = await loadGeoJSON();
+
+const onEachFeatureFunction = () => {
+    return (feature, layer) => {
+        layer.bindPopup("<p>" + ccode + "</p>");
+    };
 };
 
-const openPopup = () => {
-    console.log("hadskjadsfkjadsfkj", content);
-    content.value.mapObject.openPopup("0, 0");
+const style = () => {
+    // TODO: make this change with the value of the data or be based down from the parent
+    const scale = ["#44ce1b", "#bbdb44", "#f7e379", "#f2a134", "#e51f1f"];
+    const color = scale[Math.floor(Math.random(0) * 5)];
+    return {
+        weight: 2,
+        color: color,
+        opacity: 1,
+        fillColor: color,
+        fillOpacity: 0.5,
+    };
 };
-const test = (feature, layer) => {
-    console.log(feature, layer);
+
+const options = {
+    onEachFeature: onEachFeatureFunction(),
 };
 </script>
 
 <template>
-    <LGeoJson
-    ref="gjson"
-    :geojson="geojson"
-    :options="{ style }"
-    @click="openPopup()"
-    :onEachFeature="test()"
-    >
-        <LPopup ref="content" :options="{ maxWidth: 800 }">
-            {{ cc_code }}
-        </LPopup>
-    </LGeoJson>
+    <LGeoJson :geojson="geojson" :options="options" :optionsStyle="style" />
 </template>
