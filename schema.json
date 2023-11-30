@@ -109,13 +109,13 @@
         {
             "name": "lower",
             "type": "floatValue",
-            "indexed": true,
+            "indexed": false,
             "docValues": true
         },
         {
             "name": "upper",
             "type": "floatValue",
-            "indexed": true,
+            "indexed": false,
             "docValues": true
         }
     ]
