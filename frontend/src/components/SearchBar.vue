@@ -86,9 +86,16 @@ const { handleSubmit, meta } = useForm({
     },
 });
 
-const onSubmit = handleSubmit((values) => {
-    console.log("adkjfasdfkjnasd");
-    console.log("Form submitted!", values);
+const onSubmit = handleSubmit( async (values) => {
+    const res = await fetch("http://localhost:8000/search/", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+    });
+    const data = await res.json();
+    console.log(data);
 });
 </script>
 

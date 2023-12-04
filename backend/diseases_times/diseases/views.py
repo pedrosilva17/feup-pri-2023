@@ -1,3 +1,5 @@
+import json
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -5,12 +7,12 @@ from rest_framework.response import Response
 
 class Search(APIView):
     
-    def get(self, request):
-        data = request.query_params
+    def put(self, request):
+        data = json.loads(request.body)
         return Response(data)
 
 class AdvancedSearch(APIView):
     
-    def get(self, request):
-        data = request.query_params;
+    def put(self, request):
+        data = json.loads(request.body)
         return Response(data)

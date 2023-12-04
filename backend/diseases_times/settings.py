@@ -65,7 +65,7 @@ CORS_ALLOW_HEADERS = [
 ]
 
 CORS_ALLOW_METHODS = [
-    'GET',
+    'PUT',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
