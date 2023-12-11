@@ -1,6 +1,15 @@
 version: "3.9"
 
 services:
+  solr:
+    container_name: meic_solr
+    image: solr:9.3
+    ports:
+        - 8983:8983
+    command: solr-precreate causes
+    volumes:
+        - ${PWD}/datasets/generated:/data
+
   django:
     container_name: django
     build:

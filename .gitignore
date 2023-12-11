@@ -3,5 +3,5 @@ datasets/generated/*.txt
 datasets/generated/*.png
 datasets/generated/*/*.csv
 wordclouds/*.png
-gjsons/*.json
+gjsons/*.geojson
 graphs/*.png
