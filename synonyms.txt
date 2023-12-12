@@ -3,30 +3,29 @@ aids,acquired immunodeficiency syndrome
 african trypanosomiasis,african sleeping sickness
 aortic aneurysm,aneurysm of the aorta
 atrial fibrillation and flutter,arrhythmia
-bladder cancer,urothelial carcinoma
+bladder,urothelial
 brain and central nervous system cancer,cns tumors
-breast cancer,mammary carcinoma
-cancer,malignancy,neoplasm
+breast,mammary
+cancer,malignancy,neoplasm,carcinoma
 cardiomyopathy and myocarditis,heart muscle disease
-cervical cancer,cervix carcinoma
+cervical,cervix
 cirrhosis,liver disease
 chagas disease,american trypanosomiasis
 chronic respiratory diseases,chronic lung conditions
-colon and rectum cancer,colorectal carcinoma
 cystic echinococcosis,hydatid cyst disease
 cysticercosis,pork tapeworm infection
 dementia,alzheimer's disease
 diabetes,hyperglycemia
 diabetes and kidney diseases,diabetic nephropathy
-diarrheal diseases,gastrointestinal infections
-digestive diseases,gastrointestinal disorders
+diarrheal,gastrointestinal
+digestive,gastrointestinal
 diphtheria,corynebacterium diphtheriae infection
 ebola,ebola virus disease
 encephalitis,brain inflammation
 endocarditis,heart valve infection
-esophageal cancer,oesophagus carcinoma
+esophageal,oesophagus
 flu,influenza
-gallbladder and biliary tract cancer,biliary system carcinoma
+gallbladder and biliary tract,biliary system
 heart attack,myocardial infarction,coronary thrombosis
 hiv,human immunodeficiency virus
 hiv/aids,human immunodeficiency virus/acquired immunodeficiency syndrome
@@ -35,50 +34,39 @@ hypertensive heart disease,high blood pressure-related heart disease
 intestinal nematode infections,intestinal worm infestations
 invasive non-typhoidal salmonella (ints),invasive salmonella infection
 ischemic heart disease,coronary artery disease
-kidney cancer,renal carcinoma
-larynx cancer,laryngeal carcinoma
+kidney,renal
+larynx,laryngeal
 leishmaniasis,leishmania infection
 leukemia,blood cancer
 lip and oral cavity cancer,oral carcinoma
-liver cancer,hepatic carcinoma
+liver,hepatic
 lower respiratory infections,lower respiratory tract infections
 malaria,plasmodium infection
 malignant skin melanoma,melanoma
 maternal and neonatal disorders,complications during pregnancy and childbirth
 measles,rubeola
 meningitis,brain and spinal cord membrane inflammation
-mental disorders,psychiatric disorders
+mental,psychiatric
 mesothelioma,asbestos-related cancer
-multiple myeloma,plasma cell cancer
-musculoskeletal disorders,musculoskeletal conditions
-nasopharynx cancer,nasopharyngeal carcinoma
-neurological disorders,nervous system disorders
-non-hodgkin lymphoma,non-hodgkin's lymphoma
+neurological,nervous system
 non-melanoma skin cancer,skin carcinoma
 non-rheumatic valvular heart disease,valvular heart disorder
 nutritional deficiencies,malnutrition
 otitis media,middle ear infection
-ovarian cancer,ovarian carcinoma
-pancreatic cancer,pancreatic carcinoma
 peripheral artery disease,peripheral vascular disease
 pneumonia,lung infection
-prostate cancer,prostatic carcinoma
 rabies,lyssavirus infection
 rheumatic heart disease,rheumatic fever-related heart disease
 schistosomiasis,bilharzia
 sexually transmitted infections excluding hiv,stis
-skin and subcutaneous diseases,dermatological conditions
-stomach cancer,gastric carcinoma
+skin,dermatological,subcutaneous
+stomach,gastric
 stroke,cerebrovascular accident,brain attack
 substance use disorders,substance abuse
-testicular cancer,testicular carcinoma
 tetanus,lockjaw
-thyroid cancer,thyroid carcinoma
 tracheal\, bronchus\, and lung cancer,lung carcinoma
 tuberculosis,tubercle bacillus infection
 typhoid and paratyphoid,enteric fever
-upper respiratory infections,upper respiratory tract infections
-uterine cancer,uterine carcinoma
 varicella and herpes zoster,chickenpox and shingles
 whooping cough,pertussis
 yellow fever,flavivirus infection
