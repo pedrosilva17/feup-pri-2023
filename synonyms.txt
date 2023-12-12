@@ -74,7 +74,7 @@ substance use disorders,substance abuse
 testicular cancer,testicular carcinoma
 tetanus,lockjaw
 thyroid cancer,thyroid carcinoma
-tracheal, bronchus, and lung cancer,lung carcinoma
+tracheal\, bronchus\, and lung cancer,lung carcinoma
 tuberculosis,tubercle bacillus infection
 typhoid and paratyphoid,enteric fever
 upper respiratory infections,upper respiratory tract infections
