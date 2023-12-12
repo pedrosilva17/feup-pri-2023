@@ -2,8 +2,15 @@
 import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Suspense, defineAsyncComponent } from "vue";
+import { defineProps, defineEmits } from "vue";
+
+const emit = defineEmits(["moreInfo"]);
 
 const GeoJSON = defineAsyncComponent(() => import("@/components/GeoJSON.vue"));
+
+const { data } = defineProps({
+    data: Object,
+});
 
 const zoom = 3;
 const center = [0, 0];
@@ -213,6 +220,25 @@ const codes = [
     "RWA",
     "LTU",
 ];
+
+let lower = parseInt(data.min_value + data.max_value * 0.15);
+let upper = parseInt(data.max_value - data.max_value * 0.15);
+let lmedium = parseInt(lower + (upper - lower) * 0.3);
+let umedium = parseInt(lower + (upper - lower) * 0.7);
+
+const colorFunction = (median) => {
+    if (median <= lower) {
+        return "#44ce1b";
+    } else if (median <= lmedium) {
+        return "#bbdb44";
+    } else if (median <= umedium) {
+        return "#f7e379";
+    } else if (median <= upper) {
+        return "#f2a134";
+    } else {
+        return "#e51f1f";
+    }
+};
 </script>
 
 <template>
@@ -234,42 +260,55 @@ const codes = [
                 :attribution="attribution"
                 layer-type="base"
             />
-            <template v-for="ccode in codes">
-                <Suspense>
-                    <GeoJSON :ccode="ccode" />
-                </Suspense>
+            <template v-if="data.countries !== undefined">
+                <template
+                    v-for="country in Object.entries(data.countries)"
+                    :key="country[0]"
+                >
+                    <Suspense>
+                        <GeoJSON
+                            :ccode="country[0]"
+                            :values="Object(country[1])"
+                            :color="colorFunction(Object(country[1]).median)"
+                            @moreInfo="(place) => emit('moreInfo', place)"
+                        />
+                    </Suspense>
+                </template>
             </template>
         </LMap>
-        <div class="flex flex-row gap-6 pt-2 text-muted-foreground">
+        <div
+            v-if="data.min_value !== undefined && data.max_value !== undefined"
+            class="flex flex-row gap-6 pt-2 text-muted-foreground"
+        >
             <div class="flex flex-row place-items-center gap-2 align-middle">
                 <span
                     class="h-4 w-4 rounded-sm border border-muted-foreground bg-scale-low"
                 ></span>
-                &leq; value
+                &leq; {{ lower }}
             </div>
             <div class="flex flex-row place-items-center gap-2 align-middle">
                 <span
                     class="h-4 w-4 rounded-sm border border-muted-foreground bg-scale-lmedium"
                 ></span>
-                value &leq; value
+                {{ lower }} &leq; {{ lmedium }}
             </div>
             <div class="flex flex-row place-items-center gap-2 align-middle">
                 <span
                     class="h-4 w-4 rounded-sm border border-muted-foreground bg-scale-medium"
                 ></span>
-                value &leq; value
+                {{ lmedium }} &leq; {{ umedium }}
             </div>
             <div class="flex flex-row place-items-center gap-2 align-middle">
                 <span
                     class="h-4 w-4 rounded-sm border border-muted-foreground bg-scale-hmedium"
                 ></span>
-                value &leq; value
+                {{ umedium }} &leq; {{ upper }}
             </div>
             <div class="flex flex-row place-items-center gap-2 align-middle">
                 <span
                     class="h-4 w-4 rounded-sm border border-muted-foreground bg-scale-high"
                 ></span>
-                &geq; value
+                &geq; {{ upper }}
             </div>
         </div>
     </div>

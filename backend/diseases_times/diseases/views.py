@@ -61,8 +61,6 @@ class Search(APIView):
         countries = {}
 
         for doc in docs:
-            print(doc.get("cca3"))
-            print(doc.get("location_name"))
             cca3 = doc.get("cca3")[0]
             val = doc.get("val")
             cause_name = doc.get("cause_name")
@@ -74,10 +72,31 @@ class Search(APIView):
                 countries[cca3][cause_name] = 0
 
             countries[cca3][cause_name] += val
+        
+        for country in countries:
+            tot = 0
+            for cause in countries[country]:
+                tot += countries[country][cause]
 
-        print(countries)
+            countries[country]["median"] = tot / len(countries[country])
 
-        return Response(data)
+        max_value = float('-inf')
+        min_value = float('inf')
+
+        for country in countries:
+            if countries[country]["median"] > max_value:
+                max_value = countries[country]["median"]
+            if countries[country]["median"] < min_value:
+                min_value = countries[country]["median"]
+
+        response = {
+            "countries": countries,
+            "max_value": max_value,
+            "min_value": min_value,
+            "docs": docs
+        }
+
+        return Response(response)
 
 class AdvancedSearch(APIView):
     

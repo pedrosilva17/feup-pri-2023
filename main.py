@@ -146,7 +146,7 @@ def generate_global_csv(csv_files):
     numberdf['cca3'] = numberdf['location_name'].map(countries_cca3.set_index('location_name')['cca3'])
     numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
 
-    sampledf = numberdf.sample(n=1000)
+    sampledf = numberdf.sample(n=10000)
     id_columns = [column for column in numberdf.columns if re.search("^[a-zA-Z]*_id$", column) is not None]
 
     sampledf.drop(id_columns, axis = 'columns', inplace = True)

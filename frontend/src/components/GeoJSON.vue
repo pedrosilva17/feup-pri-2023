@@ -1,9 +1,16 @@
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, h, ref } from "vue";
 import { LGeoJson } from "@vue-leaflet/vue-leaflet";
+import Popup from "./Popup.vue";
 
-const { ccode } = defineProps({
+const emit = defineEmits(["moreInfo"]);
+
+const popup = ref("");
+
+const { ccode, values, color } = defineProps({
     ccode: String,
+    values: Object,
+    color: String,
 });
 
 async function loadGeoJSON() {
@@ -15,14 +22,11 @@ const geojson = await loadGeoJSON();
 
 const onEachFeatureFunction = () => {
     return (feature, layer) => {
-        layer.bindPopup("<p>" + ccode + "</p>");
+        layer.bindPopup(popup.value.$el);
     };
 };
 
 const style = () => {
-    // TODO: make this change with the value of the data or be based down from the parent
-    const scale = ["#44ce1b", "#bbdb44", "#f7e379", "#f2a134", "#e51f1f"];
-    const color = scale[Math.floor(Math.random(0) * 5)];
     return {
         weight: 2,
         color: color,
@@ -39,4 +43,35 @@ const options = {
 
 <template>
     <LGeoJson :geojson="geojson" :options="options" :optionsStyle="style" />
+    <template v-show="false">
+        <Popup
+            ref="popup"
+            :values="values"
+            :place="ccode"
+            @moreInfo="(place) => emit('moreInfo', place)"
+        />
+    </template>
 </template>
+
+<style>
+.leaflet-popup-content-wrapper {
+    background-color: hsl(var(--background));
+    width: 250px;
+    height: 250px;
+    padding: 0;
+    margin: 0;
+    border-radius: 10px;
+}
+
+.leaflet-popup-content-wrapper .leaflet-popup-content {
+    padding: 1em;
+    margin: 0;
+    width: 250px;
+    height: 250px;
+    border-radius: 10px;
+}
+
+.leaflet-popup-tip-container {
+    display: none;
+}
+</style>
