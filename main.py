@@ -32,8 +32,8 @@ def main():
         else:
             print('sample.csv already exists')
         dataset_description(globaldf)
+    """ commented out for quicker generation
     characterize_dataset(globaldf)
-
     # if cause_description.csv does not exist, generate it
     if not ('datasets/generated/cause_description.csv' in generated_files):
         causes = generate_causes_csv(globaldf)
@@ -50,7 +50,7 @@ def main():
         generate_individual_csvs(globaldf, causes, countries)
     else:
         print('Couldn\'t generate individual csvs')
-
+    """
 def generate_global_csv(csv_files):
     print('Generating global.csv')
 
@@ -98,6 +98,52 @@ def generate_global_csv(csv_files):
                     description = page.summary
                     cause_description = cause_description._append({'cause_name': cause, 'description': description}, ignore_index=True)
     
+    countries = numberdf["location_name"].unique()
+    countries_cca3 = pd.DataFrame(columns=['location_name', 'cca3'])
+    error_countries = {
+        "Venezuela (Bolivarian Republic of)": "VEN",
+        "Taiwan (Province of China)": "TWN",
+        "Iran (Islamic Republic of)": "IRN",
+        "Iraq (Republic of)": "IRQ",
+        "Ireland (Republic of)": "IRL",   
+        "Bolivia (Plurinational State of)": "BOL",
+        "Micronesia (Federated States of)": "FSM",
+    }
+
+    for country in countries:
+        cca3_r = requests.get(url = f'https://restcountries.com/v3.1/name/{country}')
+
+        if country == "China":
+            cca3 = "CHN"
+            countries_cca3 = countries_cca3._append({'location_name': country, 'cca3': cca3}, ignore_index=True)
+        elif cca3_r.status_code == 200:
+            cca3_data = cca3_r.json()
+            cca3 = cca3_data[0]['cca3']
+            countries_cca3 = countries_cca3._append({'location_name': country, 'cca3': cca3}, ignore_index=True)
+        else:
+            if country in error_countries:
+                cca3 = error_countries[country]
+                countries_cca3 = countries_cca3._append({'location_name': country, 'cca3': error_countries[country]}, ignore_index=True)
+            else:
+                print("Couldn't find cca3 for", country)
+                continue
+
+        gjson_r = requests.get(url = f'http://inmagik.github.io/world-countries/countries/{cca3}.geojson')
+
+        if gjson_r.status_code == 200:
+            print("Found GEOJSON for", cca3, country)
+            gjson = gjson_r.json()
+        else:
+            print("Couldn't find GEOJSON for", cca3, country)
+            continue
+        
+        try:
+            with open(f'gjsons/{cca3}.json', 'x', encoding='utf-8') as f:
+                json.dump(gjson, f, ensure_ascii=False, indent=4)
+        except FileExistsError:
+            print("GEOJSON already exists", cca3, country)
+
+    numberdf['cca3'] = numberdf['location_name'].map(countries_cca3.set_index('location_name')['cca3'])
     numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
 
     sampledf = numberdf.sample(n=1000)

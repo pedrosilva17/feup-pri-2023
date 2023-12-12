@@ -48,8 +48,34 @@ class Search(APIView):
         if (data.get('country') != None):
             pass
 
+        docs = []
 
-        return Response(requests.get("http://meic_solr:8983/solr/causes/query?q=*:*&q.op=OR&indent=true&useParams=").json())
+        fr = requests.get("http://meic_solr:8983/solr/causes/query?q=*:*&q.op=OR&rows=100&defType=edismax&indent=true&wt=json&start=0&useParams=").json()
+        numFound = fr.get('response').get('numFound')
+        docs.extend(fr.get('response').get('docs'))
+
+        for i in range(100, numFound, 100):
+            fr = requests.get("http://meic_solr:8983/solr/causes/query?q=*:*&q.op=OR&rows=100&defType=edismax&indent=true&wt=json&start=" + str(i) + "&useParams=").json()
+            docs.extend(fr.get('response').get('docs'))
+
+        countries = {}
+
+        for doc in docs:
+            print(doc.get("cca3"))
+            print(doc.get("location_name"))
+            cca3 = doc.get("cca3")[0]
+            val = doc.get("val")
+            cause_name = doc.get("cause_name")
+
+            if cca3 not in countries:
+                countries[cca3] = {}
+
+            if cause_name not in countries[cca3]:
+                countries[cca3][cause_name] = 0
+
+            countries[cca3][cause_name] += val
+
+        print(countries)
 
         return Response(data)
 
