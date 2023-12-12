@@ -75,7 +75,7 @@ testicular cancer,testicular carcinoma
 tetanus,lockjaw
 thyroid cancer,thyroid carcinoma
 tracheal, bronchus, and lung cancer,lung carcinoma
-tuberculosis,tb (tubercle bacillus) infection
+tuberculosis,tubercle bacillus infection
 typhoid and paratyphoid,enteric fever
 upper respiratory infections,upper respiratory tract infections
 uterine cancer,uterine carcinoma
