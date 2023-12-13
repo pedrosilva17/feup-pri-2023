@@ -16,13 +16,28 @@ let country = ref([]);
 
 const submit = async (values) => {
     loading.value = true;
-    const res = await fetch("http://localhost:8000/search/", {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-    });
+    let res;
+    if (values.advanced) {
+        res = await fetch("http://localhost:8000/advancedSearch/", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(values),
+        });
+    } else {
+        res = await fetch("http://localhost:8000/search/", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(values),
+        });
+    }
+    if(!res.ok) {
+        alert("Something went wrong, please try a different query");
+        window.location.reload();
+    }
     data.value = await res.json();
     loading.value = false;
     key.value += 1;

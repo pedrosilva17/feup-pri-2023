@@ -36,6 +36,7 @@ const formSchema = toTypedSchema(
             min_value: z.coerce.number().optional(),
             max_value: z.coerce.number().optional(),
             search_for: z.array(z.string()).optional(),
+            advanced: z.boolean().optional(),
         })
         .refine(
             (data) => {
@@ -65,19 +66,19 @@ const formSchema = toTypedSchema(
 
 const searchFields = [
     {
-        id: "disease",
+        id: "cause_name",
         label: "Disease Name",
     },
     {
         id: "description",
         label: "Disease Description",
     },
+    // {
+    //     id: "val",
+    //     label: "Value",
+    // },
     {
-        id: "value",
-        label: "Value",
-    },
-    {
-        id: "country",
+        id: "location_name",
         label: "Country",
     },
 ];
@@ -368,7 +369,7 @@ const countries = [
                             <SelectContent>
                                 <SelectGroup class="max-h-96">
                                     <template v-for="year in 30">
-                                        <SelectItem :value="1989 + year">{{ 1989 + year }}</SelectItem>
+                                        <SelectItem :value="(1989 + year).toString()">{{ (1989 + year).toString() }}</SelectItem>
                                     </template>
                                 </SelectGroup>
                             </SelectContent>
@@ -383,7 +384,7 @@ const countries = [
                             <SelectContent>
                                 <SelectGroup>
                                     <template v-for="year in 30">
-                                        <SelectItem :value="1989 + year">{{ 1989 + year }}</SelectItem>
+                                        <SelectItem :value="(1989 + year).toString()">{{ (1989 + year).toString() }}</SelectItem>
                                     </template>
                                 </SelectGroup>
                             </SelectContent>
@@ -453,6 +454,26 @@ const countries = [
                         </FormField>
                     </div>
                 </div>
+            </div>
+            <div>
+                <FormField
+                    v-slot="{ value, handleChange }"
+                    name="advanced"
+                >
+                    <FormItem
+                        class="flex flex-row items-center space-x-3 space-y-0"
+                    >
+                        <FormControl>
+                            <Checkbox
+                                :checked="value"
+                                @update:checked="handleChange"
+                            />
+                        </FormControl>
+                        <FormLabel class="font-normal">
+                            Advanced Search
+                        </FormLabel>
+                    </FormItem>
+                </FormField>
             </div>
         </div>
     </form>

@@ -13,8 +13,8 @@ echo "curl done"
 
 # Populate collection using mapped path inside container.
 
-# docker exec -it meic_solr bin/post -c causes /data/sample_semantic.json
-docker exec -it meic_solr bin/post -c causes /data/sample.csv
+docker exec -it meic_solr bin/post -c causes /data/sample_semantic.json
+# docker exec -it meic_solr bin/post -c causes /data/sample.csv
 
 docker cp synonyms.txt meic_solr:/var/solr/data/causes/conf/synonyms.txt
 docker cp stopwords.txt meic_solr:/var/solr/data/causes/conf/stopwords.txt

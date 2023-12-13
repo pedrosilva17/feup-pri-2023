@@ -63,7 +63,8 @@
             "class": "solr.DenseVectorField",
             "vectorDimension": 384,
             "similarityFunction": "cosine",
-            "knnAlgorithm": "hnsw"
+            "knnAlgorithm": "hnsw",
+            "hnswMaxConnections": 64
         }
     ],
     "add-field": [
@@ -124,6 +125,13 @@
             "type": "floatValue",
             "indexed": false,
             "docValues": true
+        },
+        {
+            "name": "vector",
+            "type": "causeVector",
+            "indexed": true,
+            "stored": true
         }
+
     ]
 }

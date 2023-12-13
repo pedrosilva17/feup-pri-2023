@@ -17,6 +17,19 @@ import {
 const { data } = defineProps({
     data: Object,
 });
+
+const convertAge = (age) => {
+    switch (age) {
+        case "<20 years":
+            return "0 - 19";
+        case "20-54 years":
+            return "20 - 54";
+        case "55+ years":
+            return "55 - 99+";
+        default:
+            return age;
+    }
+};
 </script>
 
 <template>
@@ -29,6 +42,7 @@ const { data } = defineProps({
                         <TableHead>Country</TableHead>
                         <TableHead>Code</TableHead>
                         <TableHead>Year</TableHead>
+                        <TableHead>Age</TableHead>
                         <TableHead>Value</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -50,6 +64,7 @@ const { data } = defineProps({
                             <TableCell>{{ doc.location_name }}</TableCell>
                             <TableCell>{{ doc.cca3[0] }}</TableCell>
                             <TableCell>{{ doc.year }}</TableCell>
+                            <TableCell>{{ convertAge(doc.age_name) }}</TableCell>
                             <TableCell>{{ doc.val }}</TableCell>
                         </TableRow>
                     </template>

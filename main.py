@@ -129,20 +129,20 @@ def generate_global_json(csv_files):
                 print("Couldn't find cca3 for", country)
                 continue
 
-        gjson_r = requests.get(url = f'http://inmagik.github.io/world-countries/countries/{cca3}.geojson')
+        # gjson_r = requests.get(url = f'http://inmagik.github.io/world-countries/countries/{cca3}.geojson')
 
-        if gjson_r.status_code == 200:
-            print("Found GEOJSON for", cca3, country)
-            gjson = gjson_r.json()
-        else:
-            print("Couldn't find GEOJSON for", cca3, country)
-            continue
+        # if gjson_r.status_code == 200:
+        #     print("Found GEOJSON for", cca3, country)
+        #     gjson = gjson_r.json()
+        # else:
+        #     print("Couldn't find GEOJSON for", cca3, country)
+        #     continue
         
-        try:
-            with open(f'gjsons/{cca3}.json', 'x', encoding='utf-8') as f:
-                json.dump(gjson, f, ensure_ascii=False, indent=4)
-        except FileExistsError:
-            print("GEOJSON already exists", cca3, country)
+        # try:
+        #     with open(f'gjsons/{cca3}.json', 'x', encoding='utf-8') as f:
+        #         json.dump(gjson, f, ensure_ascii=False, indent=4)
+        # except FileExistsError:
+        #     print("GEOJSON already exists", cca3, country)
 
     numberdf['cca3'] = numberdf['location_name'].map(countries_cca3.set_index('location_name')['cca3'])
     numberdf['description'] = numberdf['cause_name'].map(cause_description.set_index('cause_name')['description'])
