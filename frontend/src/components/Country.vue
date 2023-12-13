@@ -29,10 +29,9 @@ const diseaseValues = () => {
         <section class="pt-5 flex flex-col items-center w-full">
             <h1 :id="docs[0].cca3[0]" class="font-bold text-2xl">{{ docs[0].location_name }} - {{ docs[0].cca3[0] }}</h1>
 
-
-            <div class="grid grid-cols-4 pt-5 gap-4">
+            <div class="flex flex-row flex-wrap justify-center pt-5 gap-4">
                 <template v-for="[disease, values] in Object.entries(diseaseValues())">
-                    <div class="flex flex-col items-center">
+                    <div class="items-center">
                         <h2 class="text-center">{{disease}}</h2>
                         <div class="w-full h-60">
                             <CountryChart :values="values" />

@@ -40,7 +40,5 @@ const data = {
 </script>
 
 <template>
-    <!-- {{ values }}
-    {{ data }} -->
     <Doughnut :data="data" :options="options" />
 </template>

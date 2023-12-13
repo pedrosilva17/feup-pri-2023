@@ -142,105 +142,39 @@ class AdvancedSearch(APIView):
         return embedding_str
 
     def put(self, request):
-        def boost(field):
-            match field:
-                case "cause_name":
-                    return "1.5"
-                case "description":
-                    return "2"
-                # case "val":
-                #     return "0.75"
-                case "location_name":
-                    return "1"
-                case _:
-                    return "1"
 
         data = json.loads(request.body)
-        q = ""
-
-        if (data.get('search_for') != None):
-            pass
-
-        if (data.get('search_for') != []):
-            fields = data.get('search_for')
-            term = ""
-            if (data.get('search') != None):
-                terms = data.get('search')
-            else:
-                terms = "*"
-
-            q += (" OR ".join([f'{field}:{terms}~^{boost(field)}' for field in fields]))
-        else:
-            fields = ["cause_name", "description", "val", "location_name"]
-            term = ""
-            if (data.get('search') != None):
-                terms = data.get('search')
-            else:
-                terms = "*"
-
-            q += (" OR ".join([f'{field}:{terms}~^{boost(field)}' for field in fields]))
-
-        if (data.get('sex') != None):
-            pass
-        
-        if (data.get('age') != None):
-            age = ""
-            match data.get('age'):
-                case "0-19":
-                    age = '"<20 years"'
-                case "20-54":
-                    age = '"20-54 years"'
-                case "55-99":
-                    age = '"55+ years"'
-            q += " AND age:" + age
-
-        if (data.get('min_year') != None and data.get('max_year') != None):
-            q += " AND year:[" + str(data.get('min_year')) + " TO " + str(data.get('max_year')) + "]"
-        elif (data.get('min_year') != None and data.get('max_year') == None):
-            q += " AND year:[" + str(data.get('min_year')) + " TO *]"
-        elif (data.get('max_year') == None and data.get('min_year') != None):
-            q += " AND year:[* TO " + str(data.get('max_year')) + "]"
-
-
-        if (data.get('min_value') != None and data.get('max_value') != None):
-            q += " AND val:[" + str(data.get('min_value')) + " TO " + str(data.get('max_value')) + "]"
-        elif (data.get('min_value') != None and data.get('max_value') == None):
-            q += " AND val:[" + str(data.get('min_value')) + " TO *]"
-        elif (data.get('min_value') == None and data.get('max_value') != None):
-            q += " AND val:[* TO " + str(data.get('max_value')) + "]"
-
-        if (data.get('country') != None):
-            q += " AND cca3:" + data.get('country')
+        text = ""
+        kval = 1000
 
         endpoint = "http://meic_solr:8983/solr"
         collection = "causes"
 
-        embedding = self.text_to_embedding(q)
+        if data.get("search") != None:
+            text = data.get("search")
+
+        if data.get("k_value") != None:
+            kval = data.get("k_value")
+
+        embedding = self.text_to_embedding(text)
         
         url = f"{endpoint}/{collection}/select"
         docs = []
+
+        print(f"query: {{!knn f=vector topK={kval}}}{embedding}")
+
+        data = {
+            'q': f"{{!knn f=vector topK={kval}}}{embedding}",
+            'rows': kval,
+            'wt': "json"
+        }
+    
+        headers = { 'Content-Type': "application/x-www-form-urlencoded"}
+        response = requests.post(url, data = data, headers = headers)
+        response = response.json()
+
+        docs.extend(response.get('response').get('docs'))
         
-        start = 0
-        while (True):
-
-            data = {
-                'q': f"{{!knn f=vector topK={start + 1000}}}{embedding}",
-                'start': start,
-                'rows': 1000,
-                'wt': "json"
-            }
-        
-            headers = { 'Content-Type': "application/x-www-form-urlencoded"}
-            response = requests.post(url, data = data, headers = headers)
-            response = response.json()
-
-            docs.extend(response.get('response').get('docs'))
-
-            if (len(response.get('response').get('docs')) < 1000):
-                break
-            else:
-                start += 1000
-
         countries = {}
 
         for doc in docs:

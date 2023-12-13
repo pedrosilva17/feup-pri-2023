@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+// import { Separator } from '@/components/ui/separator'
 import {
     Select,
     SelectContent,
@@ -37,6 +38,7 @@ const formSchema = toTypedSchema(
             max_value: z.coerce.number().optional(),
             search_for: z.array(z.string()).optional(),
             advanced: z.boolean().optional(),
+            k_value: z.coerce.number().optional(),
         })
         .refine(
             (data) => {
@@ -311,21 +313,7 @@ const countries = [
             <Button :disabled="!meta.valid" type="submit">Search</Button>
         </div>
         <div class="flex flex-col items-center gap-2 space-y-2 p-2">
-            <div class="grid grid-cols-4 gap-7">
-                <FormField v-slot="{ componentField }" name="sex">
-                    <Select v-bind="componentField">
-                        <SelectTrigger class="w-[180px]">
-                            <SelectValue placeholder="Sex" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="both"> Both </SelectItem>
-                                <SelectItem value="female"> Female </SelectItem>
-                                <SelectItem value="male"> Male </SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </FormField>
+            <div class="grid grid-cols-3 gap-7">
                 <FormField v-slot="{ componentField }" name="country" v>
                     <Select v-bind="componentField">
                         <SelectTrigger class="w-[180px]">
@@ -455,7 +443,8 @@ const countries = [
                     </div>
                 </div>
             </div>
-            <div>
+            <!-- <Separator class="my-4" /> -->
+            <div class="flex flex-row gap-4">
                 <FormField
                     v-slot="{ value, handleChange }"
                     name="advanced"
@@ -470,10 +459,18 @@ const countries = [
                             />
                         </FormControl>
                         <FormLabel class="font-normal">
-                            Advanced Search
+                            Semantic Search
                         </FormLabel>
                     </FormItem>
                 </FormField>
+                <FormField v-slot="{ componentField }" name="k_value">
+                    <Input
+                        v-bind="componentField"
+                        placeholder="K Value"
+                        class="w-[100px]"
+                    />
+                </FormField>
+
             </div>
         </div>
     </form>
