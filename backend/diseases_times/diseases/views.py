@@ -1,5 +1,6 @@
 import json
 import requests
+from sentence_transformers import SentenceTransformer
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,6 +14,13 @@ from rest_framework.response import Response
 """
 
 class Search(APIView):
+
+    def text_to_embedding(query):
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        embedding = model.encode(query, convert_to_tensor=False).tolist()
+
+        embedding_str = f"[{','.join(map(str, embedding))}]"
+        return embedding_str
     
     def put(self, request):
         data = json.loads(request.body)
@@ -49,6 +57,24 @@ class Search(APIView):
             pass
 
         docs = []
+
+        """
+        endpoint = "http://meic_solr:8983/solr"
+        collection = "causes"
+
+        embedding = self.text_to_embedding(<variavel com o texto da query>)
+        
+        url = f"{endpoint}/{collection}/select"
+        
+        data = {
+            'q': f"{{!knn f=vector topK=10}}{embedding}",
+            'rows': <whatever you want>,
+            'wt': "json"
+        }
+        
+        headers = { 'Content-Type': "application/x-www-form-urlencoded"}
+        response = requests.post(url, data = data, headers = headers)
+        """
 
         fr = requests.get("http://meic_solr:8983/solr/causes/query?q=*:*&q.op=OR&rows=100&defType=edismax&indent=true&wt=json&start=0&useParams=").json()
         numFound = fr.get('response').get('numFound')

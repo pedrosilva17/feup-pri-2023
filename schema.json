@@ -57,6 +57,13 @@
         {
             "name": "intValue",
             "class": "solr.IntPointField"
+        },
+        {
+            "name": "causeVector",
+            "class": "solr.DenseVectorField",
+            "vectorDimension": 384,
+            "similarityFunction": "cosine",
+            "knnAlgorithm": "hnsw"
         }
     ],
     "add-field": [

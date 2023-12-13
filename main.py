@@ -12,25 +12,26 @@ def main():
     
     # list all csv files only
     generated_files = glob.glob('datasets/generated/*.{}'.format('csv'))
+    generated_json_files = glob.glob('datasets/generated/*.{}'.format('json'))
     ihme_files = glob.glob('datasets/IHME-*.{}'.format('csv'))
     countries = []
     causes = []
 
     # if global.csv does not exist, generate it
-    if not ('datasets/generated/global.csv' in generated_files):
-        globaldf = generate_global_csv(ihme_files)
+    if not ('datasets/generated/global.json' in generated_json_files):
+        globaldf = generate_global_json(ihme_files)
     else:
-        print('global.csv already exists\nReading global.csv')
-        globaldf = pd.read_csv('datasets/generated/global.csv')
-        if not ('datasets/generated/sample.csv' in generated_files):
-                print('Generating sample.csv')
+        print('global.json already exists\nReading global.json')
+        globaldf = pd.read_json('datasets/generated/global.json')
+        if not ('datasets/generated/sample.json' in generated_json_files):
+                print('Generating sample.json')
                 sampledf = globaldf.sample(n=100)
                 sampledf.dropna(subset=['description'], inplace=True)
                 id_columns = [column for column in sampledf.columns if re.search("^[a-zA-Z]*_id$", column) is not None]
                 sampledf.drop(id_columns, axis = 'columns', inplace = True)
-                sampledf.to_csv('datasets/generated/sample.csv', index = False)
+                sampledf.to_json('datasets/generated/sample.json', orient="table")
         else:
-            print('sample.csv already exists')
+            print('sample.json already exists')
         dataset_description(globaldf)
     """ commented out for quicker generation
     characterize_dataset(globaldf)
@@ -51,8 +52,8 @@ def main():
     else:
         print('Couldn\'t generate individual csvs')
     """
-def generate_global_csv(csv_files):
-    print('Generating global.csv')
+def generate_global_json(csv_files):
+    print('Generating global.json')
 
     globaldf = pd.concat([pd.read_csv(file) for file in csv_files ], ignore_index=True)
 
@@ -151,12 +152,12 @@ def generate_global_csv(csv_files):
 
     sampledf.drop(id_columns, axis = 'columns', inplace = True)
 
-    numberdf.to_csv('datasets/generated/global.csv', index=False)
-    sampledf.to_csv('datasets/generated/sample.csv', index=False)
+    numberdf.to_json('datasets/generated/global.json', orient='records')
+    sampledf.to_json('datasets/generated/sample.json', orient='records')
 
     dataset_description(numberdf)
 
-    print('global.csv generated')
+    print('global.json generated')
     return numberdf
 
 def generate_causes_csv(globaldf):
